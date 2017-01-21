@@ -109,7 +109,26 @@ class Queue
         and execution allowed to proceed.
   -----------------------------------------------------------------------*/
 
- private:
+  void move_to_front(const QueueElement & value);
+  /*-----------------------------------------------------------------------
+    Search through the queue for the value. Moves the node to the front of
+        the queue if found.
+     
+    Precondition:  Queue is nonempty.
+    Postcondition: Node with the value is moved to the front of the queue.
+        If the queue is empty, an error message is displayed and execution
+        allowed to proceed.
+     -----------------------------------------------------------------------*/
+    
+  void merge_two_queues(const Queue & queue1, const Queue & queue2);
+  /*-----------------------------------------------------------------------
+    Merge the two queues in order of sequence.
+     
+    Precondition:  Queues are nonempty.
+    Postcondition: Queues are merged in an new combined ordered queue.
+     -----------------------------------------------------------------------*/
+
+private:
    /*** Node class ***/
    class Node
    {

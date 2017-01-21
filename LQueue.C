@@ -127,3 +127,15 @@ void Queue::dequeue()
    else
       cerr << "*** Queue is empty -- can't remove a value ***\n";
 }
+
+//--- Definition of move_to_front()
+void Queue::move_to_front(const QueueElement & value)
+{
+    //TODO
+}
+
+//--- Definition of merge_two_queues()
+void Queue::merge_two_queues(const Queue & queue1, const Queue & queue2)
+{
+    //TODO
+}
