@@ -120,7 +120,7 @@ class Queue
         allowed to proceed.
      -----------------------------------------------------------------------*/
     
-  void merge_two_queues(const Queue & queue1, const Queue & queue2);
+  void merge_two_queues(Queue & queue1, Queue & queue2);
   /*-----------------------------------------------------------------------
     Merge the two queues in order of sequence.
      

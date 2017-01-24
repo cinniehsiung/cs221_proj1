@@ -131,11 +131,55 @@ void Queue::dequeue()
 //--- Definition of move_to_front()
 void Queue::move_to_front(const QueueElement & value)
 {
-    //TODO
+    
+    if(myFront->data == value){
+        return;
+    }
+    
+    Queue::NodePointer ptr;
+    Queue::NodePointer prevPtr = NULL;
+    for (ptr = myFront; ptr != 0; ptr = ptr->next){
+        if(ptr->data == value){
+            
+            if(ptr == myBack){
+                prevPtr->next = 0;
+                myBack = prevPtr;
+            }
+            
+            else{
+                prevPtr->next = ptr->next;
+            }
+           
+            ptr->next = myFront;
+            myFront = ptr;
+            break;
+        }
+        
+        prevPtr = ptr;
+    }
 }
 
 //--- Definition of merge_two_queues()
-void Queue::merge_two_queues(const Queue & queue1, const Queue & queue2)
+void Queue::merge_two_queues(Queue & queue1, Queue & queue2)
 {
-    //TODO
+    //CHECK THIS FOR BUGS
+    while(!queue1.empty()){
+        queue2.Queue::enqueue(queue1.myFront->data);
+        queue1.Queue::dequeue();
+    }
+    
+    Queue::NodePointer ptr;
+    while(!queue2.empty()){
+        
+        QueueElement minValue = queue2.myFront->data;
+        for (ptr = queue2.myFront; ptr != 0; ptr = ptr->next){
+            if(ptr->data<minValue){
+                minValue=ptr->data;
+            }
+        }
+        
+        queue2.move_to_front(minValue);
+        queue1.enqueue(queue2.myFront->data);
+        queue2.dequeue();
+    }
 }
