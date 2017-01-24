@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------
-                  Driver program to test the Queue class.
-  ----------------------------------------------------------------------*/
+ Driver program to test the Queue class.
+ ----------------------------------------------------------------------*/
 
 #include <iostream>
 #include "LQueue.h"
@@ -8,138 +8,171 @@
 #include <stdlib.h>
 #include <time.h>
 using namespace std;
-	
+
 
 void print(Queue q)
 { q.display(cout); }
 
 int main(void)
 {
-	Queue q1;
-	cout << "Queue created.  Empty? " << boolalpha << q1.empty() << endl;
-
-	cout << "How many elements to add to the queue? ";
-	int numItems;
-	cin >> numItems;
-	for (int i = 1; i <= numItems; i++)
-		q1.enqueue(100 * i);
-
-	cout << "Contents of queue q1 (via  print):\n";
-	print(q1);
-	cout << endl;
-
-	Queue q2;
-	q2 = q1;
-	cout << "Contents of queue q2 after q2 = q1 (via  print):\n";
-	print(q2);
-	cout << endl;
-
-	cout << "Queue q2 empty? " << q2.empty() << endl;
-
-	cout << "Front value in q2: " << q2.front() << endl;
-
-	while (!q2.empty())
-	{
-		cout << "Remove front -- Queue contents: ";
-		q2.dequeue();
-		q2.display(cout);
-	}
-	cout << "Queue q2 empty? " << q2.empty() << endl;
-	cout << "Front value in q2?" << endl << q2.front() << endl;
-	cout << "Trying to remove front of q2: " << endl;
-	q2.dequeue();
-
-	// Testing move_to_front function
-	cout << "-------------" << endl;
-	cout << "Testing move_to_front" << endl;
-
-	Queue q3;
-	for (int i = 1; i <= 10; i++)
-		q3.enqueue(i);
-
-	//move arbitary middle node to front
-	q3.move_to_front(3);
-	print(q3);
-
-	std::array<int, 10> testArr1;
-	std::array<int, 10> answerArr1 { 3, 1, 2, 4, 5, 6, 7, 8, 9, 10 };
-	for (int i = 1; i <= 10; i++) {
-		testArr1.at(i - 1) = q3.front();
-		q3.dequeue();
-	}
-
-	if (testArr1 == answerArr1) {
-		cout << "Passed move 3 to front" << endl;
-	}
-	else {
-		cout << "Failed move 3 to front" << endl;
-	}
-
-	//move back node to front
-	for (int i = 1; i <= 10; i++)
-		q3.enqueue(i);
-	q3.move_to_front(3);
-	q3.move_to_front(10);
-	print(q3);
-
-	std::array<int, 10> testArr2;
-	std::array<int, 10> answerArr2 { 10, 3, 1, 2, 4, 5, 6, 7, 8, 9};
-	for (int i = 1; i <= 10; i++) {
-		testArr2.at(i - 1) = q3.front();
-		q3.dequeue();
-	}
-
-	if (testArr2 == answerArr2) {
-		cout << "Passed move last node (10) to front" << endl;
-	}
-	else {
-		cout << "Failed move last node (10) to front" << endl;
-	}
-
-	//move front node to front
-	for (int i = 1; i <= 10; i++)
-		q3.enqueue(i);
-	q3.move_to_front(3);
-	q3.move_to_front(10);
-	print(q3);
-
-	std::array<int, 10> testArr3;
-	std::array<int, 10> answerArr3 { 10, 3, 1, 2, 4, 5, 6, 7, 8, 9};
-	for (int i = 1; i <= 10; i++) {
-		testArr3.at(i - 1) = q3.front();
-		q3.dequeue();
-	}
-
-	if (testArr3 == answerArr3) {
-		cout << "Passed move front node (10) to front" << endl;
-	}
-	else {
-		cout << "Failed move front node (10) to front" << endl;
-	}
-	
-
-	// Testing merge_two_queues function
-	cout << "-------------" << endl;
-	cout << "Testing merge_two_queues" << endl;
-
-
-	srand(time(NULL));
-	Queue q4;
-	for (int i = 1; i <= 10; i++)
-		q4.enqueue(rand() % 100);  //enqueue 10 random integers
-
-	Queue q5;
-	for (int i = 1; i <= 10; i++)
-		q5.enqueue(rand() % 100);
-		
-	cout << "First queue: " << endl;
-	print(q4);
-	cout << "Second queue: " << endl;
-	print(q5);
-	q4.merge_two_queues(q4, q5);
-	cout << "Merged queues: " << endl;
-	print(q4);
-
-   system("PAUSE");
-   return 0;
+    srand((int) time(NULL));
+    cout << "Enter:" << endl;
+    
+    int landingTime;
+    cout << "Time for a plane to land (in minutes): ";
+    cin >> landingTime;
+    cout << endl;
+    
+    int takeoffTime;
+    cout << "Time for a plane to takeoff (in minutes): ";
+    cin >> takeoffTime;
+    
+    int landingRate;
+    cout << "Landing rate (planes per hour): ";
+    cin >> landingRate;
+    
+    int takeoffRate;
+    cout << "Takeoff Rate (planes per hour): ";
+    cin >> takeoffRate;
+    
+    int simLength;
+    cout << "How long to run the simulation (in minutes): ";
+    cin >> simLength;
+    
+    Queue landingQueue;
+    Queue takeoffQueue;
+    Queue landingEnqueuedTimesQueue;
+    Queue takeoffEnqueuedTimesQueue;
+    
+    int sumLandingTimes = 0;
+    int sumTakeoffTimes= 0;
+    int totalLandingPlanes=0;
+    int totalTakeoffPlanes=0;
+    
+    int planeNum = 1000;
+    int maxTakeoffSize = 0;
+    int maxLandingSize = 0;
+    int takeoffStartTime = -1-takeoffTime;
+    int landingStartTime = -1-landingTime;
+    
+    int currTime = 0;
+    bool runwayInUse = false;
+    while(true){
+        int randLand;
+        int randTakeoff;
+        cout << "Time = " << currTime << endl;
+        
+        if(currTime == simLength){
+            cout << "No new takeoffs or landings will be generated" << endl;
+        }
+        
+        // generate new takeoffs/landings
+        if(currTime < simLength){
+            randLand = rand() % 60;
+            randTakeoff = rand() % 60;
+            
+            if(randLand < landingRate){
+                cout << "Plane " << planeNum << " wants to land; added to landing queue; ";
+                landingQueue.enqueue(planeNum++);
+                int sizeOfLandingQueue = landingQueue.size();
+                
+                if(sizeOfLandingQueue > maxLandingSize){
+                    maxLandingSize = sizeOfLandingQueue;
+                }
+                
+                cout << sizeOfLandingQueue << " in queue" << endl;
+                
+                //stats
+                landingEnqueuedTimesQueue.enqueue(currTime);
+                totalLandingPlanes++;
+                
+            }
+            
+            if(randTakeoff < takeoffRate){
+                cout << "Plane " << planeNum << " wants to takeoff; added to takeoff queue; ";
+                takeoffQueue.enqueue(planeNum++);
+                int sizeOfTakeoffQueue = takeoffQueue.size();
+                
+                if(sizeOfTakeoffQueue > maxTakeoffSize){
+                    maxTakeoffSize = sizeOfTakeoffQueue;
+                }
+                
+                cout << takeoffQueue.size() << " in queue" << endl;
+                
+                //stats
+                takeoffEnqueuedTimesQueue.enqueue(currTime);
+                totalTakeoffPlanes++;
+            }
+        }
+        
+        // if the runway is not in use
+        if(!runwayInUse){
+            if(!takeoffQueue.empty() && landingQueue.empty()){
+                cout<< "Taking off: Plane " << takeoffQueue.front() << endl;
+                takeoffStartTime = currTime;
+                runwayInUse = true;
+                
+                //stats
+                sumTakeoffTimes += currTime - takeoffEnqueuedTimesQueue.front();
+                takeoffEnqueuedTimesQueue.dequeue();
+            }
+            
+            else if(!landingQueue.empty()){
+                cout<< "Landing: Plane " << landingQueue.front() << endl;
+                landingStartTime = currTime;
+                runwayInUse = true;
+                
+                //stats
+                sumLandingTimes += currTime - landingEnqueuedTimesQueue.front();
+                landingEnqueuedTimesQueue.dequeue();
+            }
+        }
+        
+        // if the runway is being used
+        else{
+            if((currTime-takeoffStartTime) == takeoffTime){
+                takeoffQueue.dequeue();
+                cout << "Takeoff Complete; " << takeoffQueue.size() << " in queue" << endl;
+                runwayInUse = false;
+                
+                
+            }
+            else if((currTime-landingStartTime) == landingTime){
+                landingQueue.dequeue();
+                cout << "Landing Complete; " << landingQueue.size() << " in queue" << endl;
+                runwayInUse = false;
+                
+            }
+        }
+        
+        // check whether simulation ended
+        if((currTime > simLength) && landingQueue.empty() && takeoffQueue.empty()){
+            cout << "End of program." << endl;
+            break;
+        }
+        
+        currTime++;
+    }
+    
+    //stats
+    int avgLandingTime = 0;
+    int avgTakeofftime = 0;
+    
+    if(totalLandingPlanes != 0){
+        avgLandingTime = sumLandingTimes/totalLandingPlanes;
+    }
+    if(totalTakeoffPlanes != 0){
+        avgTakeofftime = sumTakeoffTimes/totalTakeoffPlanes;
+    }
+    
+    cout << "STATISTICS" << endl;
+    cout << "Maximum number of planes in landing queue was: " << maxLandingSize << endl;
+    cout << "Average minutes spent waiting to land: " << avgLandingTime << endl;
+    cout << "Maximum number of planes in takeoff queue was: " << maxTakeoffSize << endl;
+    cout << "Average minutes spent waiting to takeoff: " << avgTakeofftime << endl;
+    
+    system("PAUSE");
+    return 0;
 }
+
+

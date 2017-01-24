@@ -127,6 +127,14 @@ class Queue
     Precondition:  Queues are nonempty.
     Postcondition: Queues are merged in an new combined ordered queue.
      -----------------------------------------------------------------------*/
+    
+   int size();
+   /*-----------------------------------------------------------------------
+    Gets the size of the queue.
+    
+     Postcondition: Returns size of the queue or 0 if empty.
+     -----------------------------------------------------------------------*/
+
 
 private:
    /*** Node class ***/

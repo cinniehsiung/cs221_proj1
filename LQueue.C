@@ -183,3 +183,16 @@ void Queue::merge_two_queues(Queue & queue1, Queue & queue2)
         queue2.dequeue();
     }
 }
+
+//--- Definition of size()
+int Queue::size()
+{
+    int size = 0;
+    Queue::NodePointer ptr;
+
+    for (ptr = myFront; ptr != 0; ptr = ptr->next){
+        size++;
+    }
+    
+    return size;
+}
