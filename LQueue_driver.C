@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------
  Driver program to test the Queue class.
  ----------------------------------------------------------------------*/
-/*
+
 #include <iostream>
 #include "LQueue.h"
 #include <array>
@@ -9,6 +9,13 @@
 #include <time.h>
 using namespace std;
 
+void startRunway(Queue & queue, string queueType, int currTime, int & startTime, bool & runwayInUse, int & sumTime, string message);
+
+void endRunway(Queue & queue, string message, string queueType, bool & runwayInUse);
+
+void enqueue(Queue & queue, int & planeNum, string queueType, int currTime, int & totalPlanes, int & maxSize);
+
+double getAvg(int sumTimes, int numberOfPlanes);
 
 void print(Queue q)
 { q.display(cout); }
@@ -21,7 +28,6 @@ int main(void)
     int landingTime;
     cout << "Time for a plane to land (in minutes): ";
     cin >> landingTime;
-    cout << endl;
     
     int takeoffTime;
     cout << "Time for a plane to takeoff (in minutes): ";
@@ -35,118 +41,131 @@ int main(void)
     cout << "Takeoff Rate (planes per hour): ";
     cin >> takeoffRate;
     
+    int tornadoRate;
+    cout << "Rate of merges (per hour): ";
+    cin >> tornadoRate;
+    
     int simLength;
     cout << "How long to run the simulation (in minutes): ";
     cin >> simLength;
     
-    Queue landingQueue;
-    Queue takeoffQueue;
-    Queue landingEnqueuedTimesQueue;
-    Queue takeoffEnqueuedTimesQueue;
+    Queue landingQueueA, landingQueueB;
+    Queue takeoffQueueA, takeoffQueueB;
     
-    int sumLandingTimes = 0;
-    int sumTakeoffTimes= 0;
-    int totalLandingPlanes=0;
-    int totalTakeoffPlanes=0;
+    int sumLandingTimesA = 0, sumLandingTimesB = 0;
+    int sumTakeoffTimesA = 0, sumTakeoffTimesB = 0;
+    int totalLandingPlanesA = 0, totalLandingPlanesB = 0;
+    int totalTakeoffPlanesA = 0, totalTakeoffPlanesB = 0;
     
     int planeNum = 1000;
-    int maxTakeoffSize = 0;
-    int maxLandingSize = 0;
-    int takeoffStartTime = -1-takeoffTime;
-    int landingStartTime = -1-landingTime;
+    int maxTakeoffSizeA = 0, maxTakeoffSizeB = 0;
+    int maxLandingSizeA = 0, maxLandingSizeB = 0;
+    int takeoffStartTimeA= -1-takeoffTime, takeoffStartTimeB = -1-takeoffTime;
+    int landingStartTimeA= -1-landingTime, landingStartTimeB = -1-landingTime;
     
     int currTime = 0;
-    bool runwayInUse = false;
+    bool runwayInUseA = false, runwayInUseB = false;
+    bool tornadoTrigger = false;
+    
     while(true){
         int randLand;
         int randTakeoff;
+        int randTornado;
         cout << "Time = " << currTime << endl;
         
         if(currTime == simLength){
-            cout << "No new takeoffs or landings will be generated" << endl;
+            cout << '\t'<< "No new takeoffs or landings will be generated" << endl;
         }
         
         // generate new takeoffs/landings
         if(currTime < simLength){
+            randTornado = rand()%60;
             randLand = rand() % 60;
             randTakeoff = rand() % 60;
             
-            if(randLand < landingRate){
-                cout << "Plane " << planeNum << " wants to land; added to landing queue; ";
-                landingQueue.enqueue(planeNum++);
-                int sizeOfLandingQueue = landingQueue.size();
-                
-                if(sizeOfLandingQueue > maxLandingSize){
-                    maxLandingSize = sizeOfLandingQueue;
+            if(randTornado < tornadoRate){
+                tornadoTrigger = true;
+                if(randTornado % 2){
+                    landingQueueA.merge_two_queues(landingQueueA, landingQueueB);
+                    takeoffQueueA.merge_two_queues(takeoffQueueA, takeoffQueueB);
+                    cout << '\t'<< "TORNADO WARNING: Runway B out of service. " << endl;
+                    runwayInUseB = false;
                 }
+                else{
+                    landingQueueB.merge_two_queues(landingQueueB, landingQueueA);
+                    takeoffQueueB.merge_two_queues(takeoffQueueB, takeoffQueueA);
+                    cout << '\t'<< "TORNADO WARNING: Runway A out of service. " << endl;
+                    runwayInUseA = false;
+                }
+            }
+            
+            if(randLand < landingRate){
+                cout << '\t'<< "Plane " << planeNum << " wants to land; added to landing queue;";
                 
-                cout << sizeOfLandingQueue << " in queue" << endl;
-                
-                //stats
-                landingEnqueuedTimesQueue.enqueue(currTime);
-                totalLandingPlanes++;
-                
+                //if there are fewer planes in A, enqueue to runway A
+                if(landingQueueA.size() < landingQueueB.size()){
+                    enqueue(landingQueueA, planeNum, "A", currTime, totalLandingPlanesA, maxLandingSizeA);
+                }
+                else{
+                    enqueue(landingQueueB, planeNum, "B", currTime, totalLandingPlanesB, maxLandingSizeB);
+                    
+                }
             }
             
             if(randTakeoff < takeoffRate){
-                cout << "Plane " << planeNum << " wants to takeoff; added to takeoff queue; ";
-                takeoffQueue.enqueue(planeNum++);
-                int sizeOfTakeoffQueue = takeoffQueue.size();
+                cout << '\t'<< "Plane " << planeNum << " wants to takeoff; added to takeoff queue;";
                 
-                if(sizeOfTakeoffQueue > maxTakeoffSize){
-                    maxTakeoffSize = sizeOfTakeoffQueue;
+                //if there are fewer planes in A, enqueue to runway A
+                if(takeoffQueueA.size() < takeoffQueueB.size()){
+                    enqueue(takeoffQueueA, planeNum, "A", currTime, totalTakeoffPlanesA, maxTakeoffSizeA);
                 }
-                
-                cout << takeoffQueue.size() << " in queue" << endl;
-                
-                //stats
-                takeoffEnqueuedTimesQueue.enqueue(currTime);
-                totalTakeoffPlanes++;
+                else{
+                    enqueue(takeoffQueueB, planeNum, "B", currTime, totalTakeoffPlanesB, maxTakeoffSizeB);
+                }
             }
         }
         
-        // if the runway is not in use
-        if(!runwayInUse){
-            if(!takeoffQueue.empty() && landingQueue.empty()){
-                cout<< "Taking off: Plane " << takeoffQueue.front() << endl;
-                takeoffStartTime = currTime;
-                runwayInUse = true;
-                
-                //stats
-                sumTakeoffTimes += currTime - takeoffEnqueuedTimesQueue.front();
-                takeoffEnqueuedTimesQueue.dequeue();
+        // if the runway A is not in use
+        if(!runwayInUseA){
+            if(!takeoffQueueA.empty() && landingQueueA.empty()){
+                startRunway(takeoffQueueA, "A", currTime, takeoffStartTimeA, runwayInUseA, sumTakeoffTimesA, "Taking off");
             }
-            
-            else if(!landingQueue.empty()){
-                cout<< "Landing: Plane " << landingQueue.front() << endl;
-                landingStartTime = currTime;
-                runwayInUse = true;
-                
-                //stats
-                sumLandingTimes += currTime - landingEnqueuedTimesQueue.front();
-                landingEnqueuedTimesQueue.dequeue();
+            else if(!landingQueueA.empty()){
+                startRunway(landingQueueA, "A", currTime, landingStartTimeA, runwayInUseA, sumLandingTimesA, "Landing");
             }
         }
-        
         // if the runway is being used
         else{
-            if((currTime-takeoffStartTime) == takeoffTime){
-                takeoffQueue.dequeue();
-                cout << "Takeoff Complete; " << takeoffQueue.size() << " in queue" << endl;
-                runwayInUse = false;
-                
-                
+            if((currTime-takeoffStartTimeA) == takeoffTime && !takeoffQueueA.empty()){
+                endRunway(takeoffQueueA, "Takeoff ", "A", runwayInUseA);
             }
-            else if((currTime-landingStartTime) == landingTime){
-                landingQueue.dequeue();
-                cout << "Landing Complete; " << landingQueue.size() << " in queue" << endl;
-                runwayInUse = false;
-                
+            else if((currTime-landingStartTimeA) == landingTime && !landingQueueA.empty()){
+                endRunway(landingQueueA, "Landing ", "A", runwayInUseA);
             }
         }
         
+        // if the runway B is not in use
+        if(!runwayInUseB){
+            if(!takeoffQueueB.empty() && landingQueueB.empty()){
+                startRunway(takeoffQueueB, "B", currTime, takeoffStartTimeB, runwayInUseB, sumTakeoffTimesB, "Taking off");
+            }
+            
+            else if(!landingQueueB.empty()){
+                startRunway(landingQueueB, "B", currTime, landingStartTimeB, runwayInUseB, sumLandingTimesB, "Landing");
+            }
+        }
+        else{
+            if((currTime-takeoffStartTimeB) == takeoffTime && !takeoffQueueB.empty()){
+                endRunway(takeoffQueueB, "Takeoff ", "B", runwayInUseB);
+            }
+            else if((currTime-landingStartTimeB) == landingTime && !landingQueueB.empty()){
+                endRunway(landingQueueB, "Landing ", "B", runwayInUseB);
+            }
+        }
+        
+        
         // check whether simulation ended
-        if((currTime > simLength) && landingQueue.empty() && takeoffQueue.empty()){
+        if((currTime > simLength) && landingQueueA.empty() && takeoffQueueA.empty()){
             cout << "End of program." << endl;
             break;
         }
@@ -155,24 +174,57 @@ int main(void)
     }
     
     //stats
-    int avgLandingTime = 0;
-    int avgTakeofftime = 0;
+    cout << "STATISTICS A" << endl;
+    cout << "Maximum number of planes in landing queue was: " << maxLandingSizeA << endl;
+    cout << "Average minutes spent waiting to land: " << getAvg(sumLandingTimesA, totalLandingPlanesA) << endl;
+    cout << "Maximum number of planes in takeoff queue was: " << maxTakeoffSizeA << endl;
+    cout << "Average minutes spent waiting to takeoff: " << getAvg(sumTakeoffTimesA, totalTakeoffPlanesA) << endl;
     
-    if(totalLandingPlanes != 0){
-        avgLandingTime = sumLandingTimes/totalLandingPlanes;
-    }
-    if(totalTakeoffPlanes != 0){
-        avgTakeofftime = sumTakeoffTimes/totalTakeoffPlanes;
-    }
-    
-    cout << "STATISTICS" << endl;
-    cout << "Maximum number of planes in landing queue was: " << maxLandingSize << endl;
-    cout << "Average minutes spent waiting to land: " << avgLandingTime << endl;
-    cout << "Maximum number of planes in takeoff queue was: " << maxTakeoffSize << endl;
-    cout << "Average minutes spent waiting to takeoff: " << avgTakeofftime << endl;
+    cout << "STATISTICS B" << endl;
+    cout << "Maximum number of planes in landing queue was: " << maxLandingSizeB << endl;
+    cout << "Average minutes spent waiting to land: " << getAvg(sumLandingTimesB, totalLandingPlanesB) << endl;
+    cout << "Maximum number of planes in takeoff queue was: " << maxTakeoffSizeB << endl;
+    cout << "Average minutes spent waiting to takeoff: " << getAvg(sumTakeoffTimesB, totalTakeoffPlanesB) << endl;
     
     system("PAUSE");
     return 0;
 }
 
-*/
+void startRunway(Queue & queue, string queueType, int currTime, int & startTime, bool & runwayInUse, int & sumTime, string message)
+{
+    cout<< '\t'<< message << " from Queue " << queueType << " Plane " << queue.front() << endl;
+    startTime = currTime;
+    runwayInUse = true;
+    
+    //stats
+    sumTime += currTime - queue.frontTime();
+}
+
+void endRunway(Queue & queue, string message, string queueType, bool & runwayInUse){
+    queue.dequeue();
+    cout << '\t'<<message << "complete; " << queue.size() << " in Queue " << queueType << endl;
+    runwayInUse = false;
+}
+
+void enqueue(Queue & queue, int & planeNum, string queueType, int currTime, int & totalPlanes, int & maxSize){
+    queue.enqueue(planeNum++, currTime);
+    int sizeOfQueue = queue.size();
+    cout << sizeOfQueue << " in Queue " << queueType  << endl;
+    
+    //stats
+    totalPlanes++;
+    
+    if(sizeOfQueue > maxSize){
+        maxSize = sizeOfQueue;
+    }
+}
+
+double getAvg(int sumTimes, int numberOfPlanes){
+    
+    if(numberOfPlanes == 0){
+        return 0;
+    }
+    
+    return ((double) sumTimes)/numberOfPlanes;
+}
+
