@@ -72,7 +72,7 @@ class Queue
     Postcondition: Returns true if queue is empty and false otherwise.
   -----------------------------------------------------------------------*/
 
-  void enqueue(const QueueElement & value);
+  void enqueue(const QueueElement & value1, const int & value2);
   /*-----------------------------------------------------------------------
     Add a value to a queue.
 
@@ -98,6 +98,15 @@ class Queue
         is empty; in that case, an error message is displayed and a 
         "garbage value" is returned.
   -----------------------------------------------------------------------*/
+    int frontTime() const;
+    /*-----------------------------------------------------------------------
+     Retrieve startTime at front of queue (if any).
+     
+     Precondition:  Queue is nonempty.
+     Postcondition: Value at front of queue is returned, unless the queue
+     is empty; in that case, an error message is displayed and a
+     "garbage value" is returned.
+     -----------------------------------------------------------------------*/
 
   void dequeue();
   /*-----------------------------------------------------------------------
@@ -143,14 +152,15 @@ private:
     public:
       QueueElement data;
       Node * next;
+      int startTime;
       //--- Node constructor
-      Node(QueueElement value, Node * link = 0)
+      Node(QueueElement value, int inputTime = 0, Node * link = 0)
       /*-------------------------------------------------------------------
-        Precondition:  value and link are received
+        Precondition:  value, link and inputTime are received
         Postcondition: A Node has been constructed with value in its 
              data part and its next part set to link (default 0).
        ------------------------------------------------------------------*/
-      { data = value; next = link; }
+       { data = value; next = link; startTime = inputTime;}
 
   };
 
@@ -159,6 +169,7 @@ private:
   /***** Data Members *****/
   NodePointer myFront,      // pointer to front of queue
               myBack;       // pointer to back of queue
+    
 
 }; // end of class declaration
 

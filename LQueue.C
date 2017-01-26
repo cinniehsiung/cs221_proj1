@@ -81,9 +81,9 @@ bool Queue::empty() const
 }
 
 //--- Definition of enqueue()
-void Queue::enqueue(const QueueElement & value)
+void Queue::enqueue(const QueueElement & value1, const int & value2)
 {
-   Queue::NodePointer newptr = new Queue::Node(value);
+   Queue::NodePointer newptr = new Queue::Node(value1, value2);
    if (empty())
       myFront = myBack = newptr;
    else
@@ -111,6 +111,17 @@ QueueElement Queue::front() const
    {
 	return 0;
    }
+}
+
+//--- Definition of frontTime()
+int Queue::frontTime() const
+{
+    if (!empty())
+        return (myFront->startTime);
+    else
+    {
+        return 0;
+    }
 }
 
 //--- Definition of dequeue()
@@ -164,7 +175,7 @@ void Queue::merge_two_queues(Queue & queue1, Queue & queue2)
 {
     //CHECK THIS FOR BUGS
     while(!queue1.empty()){
-        queue2.Queue::enqueue(queue1.myFront->data);
+        queue2.Queue::enqueue(queue1.myFront->data, queue1.myFront->startTime);
         queue1.Queue::dequeue();
     }
     
@@ -179,7 +190,7 @@ void Queue::merge_two_queues(Queue & queue1, Queue & queue2)
         }
         
         queue2.move_to_front(minValue);
-        queue1.enqueue(queue2.myFront->data);
+        queue1.enqueue(queue2.myFront->data, queue2.myFront -> startTime);
         queue2.dequeue();
     }
 }
