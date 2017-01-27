@@ -1,0 +1,21 @@
+Original Queue: 1 2 3 4 5 6 7 8 9
+
+Test case: move random node to front. Testing move_to_front(3)
+3  1  2  4  5  6  7  8  9  10  
+Passed move 3 to front
+
+Test case: move last node to front. Testing move_to_front(10)
+10  3  1  2  4  5  6  7  8  9  
+Passed move last node (10) to front
+
+Test case: move front node to front. Testing move_to_front(10)
+10  3  1  2  4  5  6  7  8  9  
+Passed move front node (10) to front
+-------------
+Testing merge_two_queues
+First queue: 
+22  7  1  89  70  28  91  95  49  35  
+Second queue: 
+89  34  47  57  40  21  39  82  0  48  
+Merged queues: 
+0  1  7  21  22  28  34  35  39  40  47  48  49  57  70  82  89  89  91  95 

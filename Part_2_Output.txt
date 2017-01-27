@@ -1,0 +1,119 @@
+Enter:
+Time for a plane to land (in minutes): 5
+Time for a plane to takeoff (in minutes): 7
+Landing rate (planes per hour): 20
+Takeoff Rate (planes per hour): 20
+Rate of merges (per hour): 10
+How long to run the simulation (in minutes): 15
+Time = 0
+	TORNADO WARNING: Runway A out of service. 
+Time = 1
+	Plane 1000 wants to land; added to landing queue;1 in Queue B
+	Landing from Queue B Plane 1000
+Time = 2
+Time = 3
+	Plane 1001 wants to land; added to landing queue;1 in Queue A
+	Plane 1002 wants to takeoff; added to takeoff queue;1 in Queue B
+	Landing from Queue A Plane 1001
+Time = 4
+Time = 5
+	Plane 1003 wants to land; added to landing queue;2 in Queue B
+	Plane 1004 wants to takeoff; added to takeoff queue;1 in Queue A
+Time = 6
+	Plane 1005 wants to land; added to landing queue;2 in Queue A
+	Plane 1006 wants to takeoff; added to takeoff queue;2 in Queue B
+	Landing complete; 1 in Queue B
+Time = 7
+	TORNADO WARNING: Runway B out of service. 
+Time = 8
+	Landing complete; 2 in Queue A
+Time = 9
+	TORNADO WARNING: Runway B out of service. 
+	Plane 1007 wants to land; added to landing queue;1 in Queue B
+	Landing from Queue A Plane 1003
+	Landing from Queue B Plane 1007
+Time = 10
+	Plane 1008 wants to takeoff; added to takeoff queue;1 in Queue B
+Time = 11
+	TORNADO WARNING: Runway B out of service. 
+	Plane 1009 wants to takeoff; added to takeoff queue;1 in Queue B
+	Taking off from Queue B Plane 1009
+Time = 12
+	Plane 1010 wants to land; added to landing queue;1 in Queue B
+Time = 13
+Time = 14
+	Plane 1011 wants to land; added to landing queue;2 in Queue B
+	Landing complete; 2 in Queue A
+	Landing complete; 1 in Queue B
+Time = 15
+	No new takeoffs or landings will be generated
+	Landing from Queue A Plane 1005
+	Landing from Queue B Plane 1011
+Time = 16
+Time = 17
+Time = 18
+	Takeoff complete; 0 in Queue B
+Time = 19
+	Landing from Queue B Plane 1011
+Time = 20
+	Landing complete; 1 in Queue A
+Time = 21
+	Landing from Queue A Plane 1007
+Time = 22
+Time = 23
+Time = 24
+	Landing complete; 0 in Queue B
+Time = 25
+Time = 26
+	Landing complete; 0 in Queue A
+Time = 27
+	Taking off from Queue A Plane 1002
+Time = 28
+Time = 29
+Time = 30
+Time = 31
+Time = 32
+Time = 33
+Time = 34
+	Takeoff complete; 3 in Queue A
+Time = 35
+	Taking off from Queue A Plane 1004
+Time = 36
+Time = 37
+Time = 38
+Time = 39
+Time = 40
+Time = 41
+Time = 42
+	Takeoff complete; 2 in Queue A
+Time = 43
+	Taking off from Queue A Plane 1006
+Time = 44
+Time = 45
+Time = 46
+Time = 47
+Time = 48
+Time = 49
+Time = 50
+	Takeoff complete; 1 in Queue A
+Time = 51
+	Taking off from Queue A Plane 1008
+Time = 52
+Time = 53
+Time = 54
+Time = 55
+Time = 56
+Time = 57
+Time = 58
+	Takeoff complete; 0 in Queue A
+End of program.
+STATISTICS A
+Maximum number of planes in landing queue was: 2
+Average minutes spent waiting to land: 12.5
+Maximum number of planes in takeoff queue was: 1
+Average minutes spent waiting to takeoff: 132
+STATISTICS B
+Maximum number of planes in landing queue was: 2
+Average minutes spent waiting to land: 1.2
+Maximum number of planes in takeoff queue was: 2
+Average minutes spent waiting to takeoff: 0
