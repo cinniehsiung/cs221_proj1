@@ -1,17 +1,26 @@
-CC=g++
-CFLAGS=-Wall -O3
-PROG=LQueue_driver
-OBJS=LQueue_driver.o LQueue.o
+# Project 1 Makefile
+# ------------------
+# Usage:
+# - to build LQueue_driver: make LQueue_driver
+# - to build runway: make runway
+# - to clean up: make clean
 
-runway: $(OBJS)
-	$(CC) -o $(PROG) $(OBJS)
+# edit here if you need to change the C++ compiler flags
+CXXFLAGS ?= -Wall -g --std=c++11
+# this reminds make to link the C++ standard library
+LDLIBS ?= -lstdc++
 
-.C.o:
-	$(CC) $(CFLAGS) -c $*.C
+# by default, compile only the test driver
+all: LQueue_driver
 
-LQueue.o:	LQueue.h
+# compile the LQueue library
+LQueue.o: LQueue.C LQueue.h
 
-LQueue_driver.o:	LQueue_driver.C LQueue.o LQueue.h
+# compile the test driver
+LQueue_driver: LQueue_driver.o LQueue.o
+
+# compile the runway (runway.C has to exist)
+runway: runway.o LQueue.o
 
 clean:
-	rm *.o core
+	rm -f *.o LQueue_driver runway
