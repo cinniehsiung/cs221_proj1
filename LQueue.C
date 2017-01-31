@@ -171,27 +171,26 @@ void Queue::move_to_front(const QueueElement & value)
 }
 
 //--- Definition of merge_two_queues()
-void Queue::merge_two_queues(Queue & queue1, Queue & queue2)
+void Queue::merge_two_queues(Queue * queue2)
 {
-    //CHECK THIS FOR BUGS
-    while(!queue1.empty()){
-        queue2.Queue::enqueue(queue1.myFront->data, queue1.myFront->startTime);
-        queue1.Queue::dequeue();
+	//enqueue all elements in queue1 to queue2
+    while(!empty()){
+        queue2->enqueue(myFront->data, myFront->startTime);
+        dequeue();
     }
     
     Queue::NodePointer ptr;
-    while(!queue2.empty()){
-        
-        QueueElement minValue = queue2.myFront->data;
-        for (ptr = queue2.myFront; ptr != 0; ptr = ptr->next){
+    while(!queue2->empty()){
+        //add min value from queue2 to queue1
+        QueueElement minValue = queue2->myFront->data;
+        for (ptr = queue2->myFront; ptr != 0; ptr = ptr->next){
             if(ptr->data<minValue){
                 minValue=ptr->data;
             }
-        }
-        
-        queue2.move_to_front(minValue);
-        queue1.enqueue(queue2.myFront->data, queue2.myFront -> startTime);
-        queue2.dequeue();
+        }        
+        queue2->move_to_front(minValue);
+        enqueue(queue2->myFront->data, queue2->myFront->startTime);
+        queue2->dequeue();
     }
 }
 
@@ -200,10 +199,8 @@ int Queue::size()
 {
     int size = 0;
     Queue::NodePointer ptr;
-
     for (ptr = myFront; ptr != 0; ptr = ptr->next){
         size++;
     }
-    
     return size;
 }

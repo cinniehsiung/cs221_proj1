@@ -10,17 +10,70 @@
 #include <time.h>
 using namespace std;
 
-void startRunway(Queue & queue, string queueType, int currTime, int & startTime, bool & runwayInUse, int & sumTime, string message);
-
-void endRunway(Queue & queue, string message, string queueType, bool & runwayInUse);
-
-void enqueue(Queue & queue, int & planeNum, string queueType, int currTime, int & totalPlanes, int & maxSize);
-
-double getAvg(int sumTimes, int numberOfPlanes);
-
+/*-----------------------------------------------------------------------
+Runs the plane runway simulation (Part 2 of assignment).
+-----------------------------------------------------------------------*/
 void runSim();
 
+/*-----------------------------------------------------------------------
+Runs the test cases for move_to_front and merge_two_queues 
+(Part 1 of assignment).
+-----------------------------------------------------------------------*/
 void testMode();
+
+/*-----------------------------------------------------------------------
+Initiates the takeoff/landing of the plane at the front of a given queue
+on a given runway. Also calculates the wait time of the plane. 
+
+Precondition: 
+	Queue queue			- queue whose front element is the plane that is
+						taking off / landing
+	string queueType	- name of runway (either "A" or "B") 
+	int currTime		- current time in simulation
+	bool runwayInUse	- indicates whether the given runway is in use or not 
+						should be false before calling this function.
+	int sumTime			- sum of planes' waiting times for the given queue. 
+	string message		- indicates whether the queue is for landing or takeoff 
+						by printing to console. 
+-----------------------------------------------------------------------*/
+void startRunway(Queue * queue, string queueType, int currTime, int & startTime, bool & runwayInUse, int & sumTime, string message);
+
+/*-----------------------------------------------------------------------
+Removes the plane from the given queue after take off / landing is complete,
+and frees the runway. 
+
+Precondition:
+	Queue queue			- queue whose front element is the plane that has completeted
+						landing / takeoff.
+	string message		- indicates whether the queue is for landing or takeoff
+						by printing to console.
+	string queueType	- name of runway (either "A" or "B")
+	bool runwayInUse	- indcates whether the given runway is in use or not
+						should be true before calling this function
+-----------------------------------------------------------------------*/
+void endRunway(Queue * queue, string message, string queueType, bool & runwayInUse);
+
+/*-----------------------------------------------------------------------
+Adds plane to the given take off / landing queue. 
+
+Precondition:
+	Queue queue			- queue to add plane to (begin wait).
+	int planeNum		- indicates plane identification number.
+	string queueType	- name of runway (either "A" or "B")
+	int currTime		- current time in simulation
+	int totalPlanes		- total number of planes that have gone through this queue
+	int maxSize			- maximum number of planes in the given queue at any time
+-----------------------------------------------------------------------*/
+void beginWait(Queue * queue, int & planeNum, string queueType, int currTime, int & totalPlanes, int & maxSize);
+
+/*-----------------------------------------------------------------------
+Gets the average waiting times.
+
+Precondition:
+	int sumTimes		- sum of waiting times of all planes. 
+	int numberOfPlanes	- total number of planes.	 
+-----------------------------------------------------------------------*/
+double getAvg(int sumTimes, int numberOfPlanes);
 
 void print(Queue q)
 { q.display(cout); }
@@ -43,28 +96,28 @@ int main(void)
     return 0;
 }
 
-void startRunway(Queue & queue, string queueType, int currTime, int & startTime, bool & runwayInUse, int & sumTime, string message)
+void startRunway(Queue * queue, string queueType, int currTime, int & startTime, bool & runwayInUse, int & sumTime, string message)
 {
-	cout << '\t' <<  message << " from Queue " << queueType << " Plane " << queue.front() << endl;
+	cout << '\t' <<  message << " from Queue " << queueType << " Plane " << queue->front() << endl; 
     startTime = currTime;
     runwayInUse = true;
     
-    //stats
-    sumTime += currTime - queue.frontTime();
+    //for calculating stats
+    sumTime += currTime - queue->frontTime();
 }
 
-void endRunway(Queue & queue, string message, string queueType, bool & runwayInUse){
-    queue.dequeue();
-    cout << '\t'<<message << "complete; " << queue.size() << " in Queue " << queueType << endl;
+void endRunway(Queue * queue, string message, string queueType, bool & runwayInUse){
+    queue->dequeue();
+    cout << '\t'<<message << "complete; " << queue->size() << " in Queue " << queueType << endl;
     runwayInUse = false;
 }
 
-void enqueue(Queue & queue, int & planeNum, string queueType, int currTime, int & totalPlanes, int & maxSize){
-    queue.enqueue(planeNum++, currTime);
-    int sizeOfQueue = queue.size();
+void beginWait(Queue * queue, int & planeNum, string queueType, int currTime, int & totalPlanes, int & maxSize){
+    queue->enqueue(planeNum++, currTime);
+    int sizeOfQueue = queue->size();
     cout << sizeOfQueue << " in Queue " << queueType  << endl;
     
-    //stats
+    //for calculating stats
     totalPlanes++;
     
     if(sizeOfQueue > maxSize){
@@ -73,17 +126,17 @@ void enqueue(Queue & queue, int & planeNum, string queueType, int currTime, int 
 }
 
 double getAvg(int sumTimes, int numberOfPlanes){
-    
     if(numberOfPlanes == 0){
         return 0;
     }
-    
-    return ((double) sumTimes)/numberOfPlanes;
+    return roundf((((double) sumTimes)/numberOfPlanes)*100)/100;
 }
 
 void runSim() {
 
 	srand((int)time(NULL));
+	
+	//simulation inputs
 	cout << "Enter:" << endl;
 
 	int landingTime;
@@ -110,8 +163,10 @@ void runSim() {
 	cout << "How long to run the simulation (in minutes): ";
 	cin >> simLength;
 
-	Queue landingQueueA, landingQueueB;
-	Queue takeoffQueueA, takeoffQueueB;
+
+	//initiate variables
+	Queue * landingQueueA = new Queue(), * landingQueueB = new Queue();
+	Queue * takeoffQueueA = new Queue(), * takeoffQueueB = new Queue();
 
 	int sumLandingTimesA = 0, sumLandingTimesB = 0;
 	int sumTakeoffTimesA = 0, sumTakeoffTimesB = 0;
@@ -127,12 +182,14 @@ void runSim() {
 	int currTime = 0;
 	bool runwayInUseA = false, runwayInUseB = false;
 
+	//loop to run simulation
 	while (true) {
 		int randLand;
 		int randTakeoff;
 		int randTornado;
 		cout << "Time = " << currTime << endl;
 
+		//end simluation generating planes
 		if (currTime == simLength) {
 			cout << '\t' << "No new takeoffs or landings will be generated" << endl;
 		}
@@ -143,88 +200,89 @@ void runSim() {
 			randLand = rand() % 60;
 			randTakeoff = rand() % 60;
 
+			//simulate a tornado 
 			if (randTornado < tornadoRate) {
+				//affect runway A if randTornado is even
 				if (randTornado % 2) {
-					landingQueueA.merge_two_queues(landingQueueA, landingQueueB);
-					takeoffQueueA.merge_two_queues(takeoffQueueA, takeoffQueueB);
+					landingQueueA->merge_two_queues(landingQueueB);
+					takeoffQueueA->merge_two_queues(takeoffQueueB);
 					cout << '\t' << "TORNADO WARNING: Runway B out of service. " << endl;
 					runwayInUseB = false;
 				}
+				//affect runway B if randTornado is odd
 				else {
-					landingQueueB.merge_two_queues(landingQueueB, landingQueueA);
-					takeoffQueueB.merge_two_queues(takeoffQueueB, takeoffQueueA);
+					landingQueueB->merge_two_queues(landingQueueA);
+					takeoffQueueB->merge_two_queues(takeoffQueueA);
 					cout << '\t' << "TORNADO WARNING: Runway A out of service. " << endl;
 					runwayInUseA = false;
 				}
 			}
-
+			//simluate landing
 			if (randLand < landingRate) {
 				cout << '\t' << "Plane " << planeNum << " wants to land; added to landing queue;";
-
 				//if there are fewer planes in A, enqueue to runway A
-				if (landingQueueA.size() < landingQueueB.size()) {
-					enqueue(landingQueueA, planeNum, "A", currTime, totalLandingPlanesA, maxLandingSizeA);
+				if (landingQueueA->size() < landingQueueB->size()) {
+					beginWait(landingQueueA, planeNum, "A", currTime, totalLandingPlanesA, maxLandingSizeA);
 				}
 				else {
-					enqueue(landingQueueB, planeNum, "B", currTime, totalLandingPlanesB, maxLandingSizeB);
-
+					beginWait(landingQueueB, planeNum, "B", currTime, totalLandingPlanesB, maxLandingSizeB);
 				}
 			}
-
+			//simlate takeoff
 			if (randTakeoff < takeoffRate) {
 				cout << '\t' << "Plane " << planeNum << " wants to takeoff; added to takeoff queue;";
 
 				//if there are fewer planes in A, enqueue to runway A
-				if (takeoffQueueA.size() < takeoffQueueB.size()) {
-					enqueue(takeoffQueueA, planeNum, "A", currTime, totalTakeoffPlanesA, maxTakeoffSizeA);
+				if (takeoffQueueA->size() < takeoffQueueB->size()) {
+					beginWait(takeoffQueueA, planeNum, "A", currTime, totalTakeoffPlanesA, maxTakeoffSizeA);
 				}
 				else {
-					enqueue(takeoffQueueB, planeNum, "B", currTime, totalTakeoffPlanesB, maxTakeoffSizeB);
+					beginWait(takeoffQueueB, planeNum, "B", currTime, totalTakeoffPlanesB, maxTakeoffSizeB);
 				}
 			}
 		}
 
-		// if the runway A is not in use
+		// if runway A is not in use
 		if (!runwayInUseA) {
-			if (!takeoffQueueA.empty() && landingQueueA.empty()) {
+			//can only takeoff if landing queue is empty
+			if (!takeoffQueueA->empty() && landingQueueA->empty()) { 
 				startRunway(takeoffQueueA, "A", currTime, takeoffStartTimeA, runwayInUseA, sumTakeoffTimesA, "Taking off");
 			}
-			else if (!landingQueueA.empty()) {
+			else if (!landingQueueA->empty()) {
 				startRunway(landingQueueA, "A", currTime, landingStartTimeA, runwayInUseA, sumLandingTimesA, "Landing");
 			}
 		}
-		// if the runway is being used
+		// if runway A is being used
 		else {
-			if ((currTime - takeoffStartTimeA) == takeoffTime && !takeoffQueueA.empty()) {
+			if ((currTime - takeoffStartTimeA) == takeoffTime && !takeoffQueueA->empty()) {
 				endRunway(takeoffQueueA, "Takeoff ", "A", runwayInUseA);
 			}
-			else if ((currTime - landingStartTimeA) == landingTime && !landingQueueA.empty()) {
+			else if ((currTime - landingStartTimeA) == landingTime && !landingQueueA->empty()) {
 				endRunway(landingQueueA, "Landing ", "A", runwayInUseA);
 			}
 		}
 
 		// if the runway B is not in use
 		if (!runwayInUseB) {
-			if (!takeoffQueueB.empty() && landingQueueB.empty()) {
+			if (!takeoffQueueB->empty() && landingQueueB->empty()) {
 				startRunway(takeoffQueueB, "B", currTime, takeoffStartTimeB, runwayInUseB, sumTakeoffTimesB, "Taking off");
 			}
-
-			else if (!landingQueueB.empty()) {
+			else if (!landingQueueB->empty()) {
 				startRunway(landingQueueB, "B", currTime, landingStartTimeB, runwayInUseB, sumLandingTimesB, "Landing");
 			}
 		}
+		//if runway B is in use
 		else {
-			if ((currTime - takeoffStartTimeB) == takeoffTime && !takeoffQueueB.empty()) {
+			if ((currTime - takeoffStartTimeB) == takeoffTime && !takeoffQueueB->empty()) {
 				endRunway(takeoffQueueB, "Takeoff ", "B", runwayInUseB);
 			}
-			else if ((currTime - landingStartTimeB) == landingTime && !landingQueueB.empty()) {
+			else if ((currTime - landingStartTimeB) == landingTime && !landingQueueB->empty()) {
 				endRunway(landingQueueB, "Landing ", "B", runwayInUseB);
 			}
 		}
 
-
 		// check whether simulation ended
-		if ((currTime > simLength) && landingQueueA.empty() && takeoffQueueA.empty()) {
+		if ((currTime > simLength) && landingQueueA->empty() && takeoffQueueA->empty()) {
 			cout << "End of program." << endl;
 			break;
 		}
@@ -277,6 +335,7 @@ void testMode() {
 	cout << endl;
 
 	cout << "Test case: move last node to front. Testing move_to_front(10)" << endl;
+	
 	//move back node to front
 	for (int i = 1; i <= 10; i++)
 		q3.enqueue(i, 0);
@@ -299,7 +358,7 @@ void testMode() {
 	}
 	cout << endl;
 
-	cout << "Test case: move front node to front. Testing move_to_front(10)";
+	cout << "Test case: move front node to front. Testing move_to_front(10)" << endl;
 	//move front node to front
 	for (int i = 1; i <= 10; i++)
 		q3.enqueue(i, 0);
@@ -321,26 +380,24 @@ void testMode() {
 		cout << "Failed move front node (10) to front" << endl;
 	}
 
-
 	// Testing merge_two_queues function
 	cout << "-------------" << endl;
 	cout << "Testing merge_two_queues" << endl;
-
 
 	srand(time(NULL));
 	Queue q4;
 	for (int i = 1; i <= 10; i++)
 		q4.enqueue(rand() % 100, 0);  //enqueue 10 random integers
 
-	Queue q5;
+	Queue * q5 = new Queue();
 	for (int i = 1; i <= 10; i++)
-		q5.enqueue(rand() % 100, 0);
+		q5->enqueue(rand() % 100, 0);
 
 	cout << "First queue: " << endl;
 	print(q4);
 	cout << "Second queue: " << endl;
-	print(q5);
-	q4.merge_two_queues(q4, q5);
+	print(*q5);
+	q4.merge_two_queues(q5);
 	cout << "Merged queues: " << endl;
 	print(q4);
 }

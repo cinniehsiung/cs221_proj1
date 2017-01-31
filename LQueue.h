@@ -129,11 +129,11 @@ class Queue
         allowed to proceed.
      -----------------------------------------------------------------------*/
     
-  void merge_two_queues(Queue & queue1, Queue & queue2);
+  void merge_two_queues(Queue * queue2);
   /*-----------------------------------------------------------------------
-    Merge the two queues in order of sequence.
+    Merge given queue into current queue, in order of sequence.
      
-    Precondition:  Queues are nonempty.
+    Precondition: Queue is nonempty.
     Postcondition: Queues are merged in an new combined ordered queue.
      -----------------------------------------------------------------------*/
     
@@ -141,7 +141,7 @@ class Queue
    /*-----------------------------------------------------------------------
     Gets the size of the queue.
     
-     Postcondition: Returns size of the queue or 0 if empty.
+    Postcondition: Returns size of the queue or 0 if empty.
      -----------------------------------------------------------------------*/
 
 
@@ -158,7 +158,8 @@ private:
       /*-------------------------------------------------------------------
         Precondition:  value, link and inputTime are received
         Postcondition: A Node has been constructed with value in its 
-             data part and its next part set to link (default 0).
+             data part, plane arrival time in inputTume (default 0) - for project 1,
+			 and its next part set to link (default 0).
        ------------------------------------------------------------------*/
        { data = value; next = link; startTime = inputTime;}
 
